@@ -45,7 +45,7 @@
   
   <style scoped>
   .blurred {
-    filter: blur(5px);
+    filter: blur(5px) grayscale(100%);
   }
   .revealed {
     filter: none;

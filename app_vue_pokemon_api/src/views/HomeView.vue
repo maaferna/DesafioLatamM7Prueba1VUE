@@ -1,5 +1,6 @@
 <template>
   <div class="container mt-5">
+    <img class="d-block mx-auto" src="https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png" alt="logo pokeapi">
     <h1 class="text-center">Adivina el Pokémon</h1>
     <p class="text-center">Adivina el nombre de cada Pokémon para descubrirlo.</p>
     
@@ -12,16 +13,21 @@
         <PokemonItem :pokemon="pokemon" :allPokemonNames="allPokemonNames" @pokemonDiscovered="incrementDiscoveredCount" />
       </div>
     </div>
+
+    <!-- Mostrar listado en JSON format para testear el funcionamiento -->
+    <PokemonListTester :correctAnswers="selectedPokemons.map(pokemon => pokemon.name)" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import PokemonItem from '../components/PokemonItem.vue';
+import PokemonListTester from '../components/PokemonListTester.vue';
 
 export default {
   components: {
     PokemonItem,
+    PokemonListTester
   },
   data() {
     return {
@@ -36,15 +42,13 @@ export default {
   methods: {
     async fetchAllPokemons() {
       try {
-        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?');
-        this.allPokemonNames = response.data.results.map(pokemon => pokemon.name);
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000');
+        this.allPokemonNames = response.data.results.map(pokemon => pokemon.name).sort();
 
         const randomIds = this.getRandomIds(this.allPokemonNames.length, 20);
 
         const pokemonPromises = randomIds.map(id => axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`));
         const pokemonData = await Promise.all(pokemonPromises);
-
-        console.log(pokemonData);
 
         this.selectedPokemons = pokemonData.map(pokemon => ({
           id: pokemon.data.id,
@@ -67,7 +71,7 @@ export default {
     incrementDiscoveredCount() {
       this.discoveredCount++;
     }
-  },
+  }
 };
 </script>
 
